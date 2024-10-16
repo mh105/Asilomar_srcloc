@@ -56,8 +56,8 @@ em_iters_Ar1 = np.zeros(nsources, dtype=np.float64)
 max_iter = 10
 
 # Simulate source activity in one source at a time
-for vidx in range(nsources):  # Note vidx is a single source/vertex
-    with Timer():
+with Timer():
+    for vidx in range(nsources):  # Note vidx is a single source/vertex
         print('vertex' + str(vidx))
 
         # Simulate the source activity in a single source point
