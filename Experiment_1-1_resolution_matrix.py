@@ -21,12 +21,12 @@ fwd = mne.convert_forward_solution(fwd, force_fixed=True, surf_ori=True)
 G = fwd['sol']['data']
 
 # Oscillator parameters for simulating source activity
-simulation_mode = 'sinusoid'  # (oscillator or sinusoid) used for simulating source activity
+simulation_mode = 'oscillator'  # (oscillator or sinusoid) used for simulating source activity
 Fs = 100  # (Hz) sampling frequency
 T = 10  # (s) total duration of simulated activity
 a = 0.99  # (unitless) damping factor, only relevant if using Matsuda oscillator
 f = 5  # (Hz) center frequency of oscillation in Hertz
-Q = 0  # (Am^2) state noise covariance for the active oscillator only
+Q = 1  # (Am^2) state noise covariance for the active oscillator only
 mu0 = [0, 0]  # (Am) initial state mean for the active oscillator only
 Q0 = Q  # (Am^2) initial state variance for the active oscillator only
 R = 1  # (V^2) observation noise variance, assuming diagonal covariance matrix with the same noise for each channel
@@ -37,7 +37,7 @@ rng = np.random.default_rng(1015)
 # Under the assumption of white observation noise, we can control the average SNR on the scalp
 SNR_power = 9
 SNR_amplitude = np.sqrt(SNR_power)
-scalp_amplitude = np.sqrt(R * SNR_power * 4)  # sine wave two-sided power: A^2/4
+scalp_amplitude = np.sqrt(R * SNR_power * 2)  # two-sided power of wave: A_rms^2/2
 src_scale = scalp_amplitude / np.mean(abs(G), axis=(0, 1))
 
 # Assume a noiseless background of source activity for resolution matrix calculation
@@ -63,10 +63,11 @@ for vidx in range(nsources):  # Note vidx is a single source/vertex
         # Simulate the source activity in a single source point
         simulated_src = simulate_oscillation(f, a, Q, mu0, Q0, Fs, T,
                                              oscillation_type=simulation_mode)
+        rms_amplitude = np.sqrt(np.mean(simulated_src ** 2))
 
         # Place simulated_src in the correct row of x that corresponds to the activated source
         x = np.copy(x_blank)
-        x[vidx, :] += src_scale * simulated_src  # scale to the right average scalp SNR
+        x[vidx, :] += src_scale / rms_amplitude * simulated_src  # scale to the right average scalp SNR
 
         # Multiply by fwd model to get EEG scalp activity and add observation noise
         y = G @ x + rng.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
@@ -87,8 +88,8 @@ for vidx in range(nsources):  # Note vidx is a single source/vertex
         em_iters_Ar1[vidx] = src1.em_log['em_iter']
 
 # Save the results
-with open('results/Experiment_1_Osc_results.pickle', 'wb') as openfile:
+with open('results/Experiment_1-1_Osc_results.pickle', 'wb') as openfile:
     pickle.dump((all_x_t_n_Osc, all_P_t_n_Osc, em_iters_Osc), openfile)
 
-with open('results/Experiment_1_Arn_results.pickle', 'wb') as openfile:
+with open('results/Experiment_1-1_Arn_results.pickle', 'wb') as openfile:
     pickle.dump((all_x_t_n_Ar1, all_P_t_n_Ar1, em_iters_Ar1), openfile)
