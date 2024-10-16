@@ -61,8 +61,7 @@ with Timer():
         print('vertex' + str(vidx))
 
         # Simulate the source activity in a single source point
-        simulated_src = simulate_oscillation(f, a, Q, mu0, Q0, Fs, T,
-                                             oscillation_type=simulation_mode)
+        simulated_src = simulate_oscillation(f, a, Q, mu0, Q0, Fs, T, oscillation_type=simulation_mode)
 
         # Place simulated_src in the correct row of x that corresponds to the activated source
         x = np.copy(x_blank)
