@@ -81,7 +81,7 @@ for vidx in range(nsources):  # Note vidx is a single source/vertex
 
         components = Arn(coeff=0.95)
         src1 = Src(components=components, fwd=fwd)
-        x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter)
+        x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, keep_param='F')
         all_x_t_n_Ar1.append(x_t_n)
         all_P_t_n_Ar1.append(P_t_n)
         em_iters_Ar1[vidx] = src1.em_log['em_iter']
