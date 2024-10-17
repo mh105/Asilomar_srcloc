@@ -13,7 +13,7 @@ def plot_resmat_metrics(res_mat, src, legend_str):
     plt.rcParams["svg.fonttype"] = "none"
     font_size = 20
 
-    fig, ax = plt.subplots(1, 2, figsize=(15, 5))
+    fig, ax = plt.subplots(1, 2, figsize=(18, 8))
     ax[0].hist(SD, bins=bins, alpha=0.5, density=True, edgecolor='black', label=legend_str)
     ax[0].legend(prop={'size': 10})
     ax[0].yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
