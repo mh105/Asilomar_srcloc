@@ -1,10 +1,10 @@
 """
 Simulation studies Experiment 1:
 
-        Resolution matrix calculation and comparisons
+        Resolution matrix calculation
 
 - Activate source activity in one patch of sources at a time
-- This is to replicate the results from simulation_study_patch_source.py back in 2022
+- Figure out what is the best parameters for oscillator dmap-em
 """
 
 import mne
@@ -12,7 +12,6 @@ import pickle
 import numpy as np
 from codetiming import Timer
 from somata import OscillatorModel as Osc
-from somata import AutoRegModel as Arn
 from somata.source_loc import SourceLocModel as Src
 from somata.source_loc.source_loc_utils import simulate_oscillation
 
@@ -46,13 +45,25 @@ neeg, nsources = G.shape  # (64,1162)
 ntime = T * Fs + 1
 x_blank = np.zeros((G.shape[1], ntime))
 
-all_x_t_n_Osc = []
-all_P_t_n_Osc = []
-em_iters_Osc = np.zeros(nsources, dtype=np.float64)
+all_x_t_n_Osc_1 = []
+all_P_t_n_Osc_1 = []
+em_iters_Osc_1 = np.zeros(nsources, dtype=np.float64)
 
-all_x_t_n_Ar1 = []
-all_P_t_n_Ar1 = []
-em_iters_Ar1 = np.zeros(nsources, dtype=np.float64)
+all_x_t_n_Osc_2 = []
+all_P_t_n_Osc_2 = []
+em_iters_Osc_2 = np.zeros(nsources, dtype=np.float64)
+
+all_x_t_n_Osc_3 = []
+all_P_t_n_Osc_3 = []
+em_iters_Osc_3 = np.zeros(nsources, dtype=np.float64)
+
+all_x_t_n_Osc_4 = []
+all_P_t_n_Osc_4 = []
+em_iters_Osc_4 = np.zeros(nsources, dtype=np.float64)
+
+all_x_t_n_Osc_5 = []
+all_P_t_n_Osc_5 = []
+em_iters_Osc_5 = np.zeros(nsources, dtype=np.float64)
 
 max_iter = 10
 
@@ -92,22 +103,52 @@ with Timer():
 
             # Dynamic source localization
             components = Osc(a=0.99, freq=f, Fs=Fs)
-            src1 = Src(components=components, fwd=fwd, d1=0.1, d2=0.05, m1=0.9, m2=0.1)
-            x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, keep_param='R')
-            all_x_t_n_Osc.append(x_t_n)
-            all_P_t_n_Osc.append(P_t_n)
-            em_iters_Osc[vidx] = src1.em_log['em_iter']
+            src1 = Src(components=components, fwd=fwd)
+            x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter)
+            all_x_t_n_Osc_1.append(x_t_n)
+            all_P_t_n_Osc_1.append(P_t_n)
+            em_iters_Osc_1[vidx] = src1.em_log['em_iter']
 
-            components = Arn(coeff=0.95)
-            src1 = Src(components=components, fwd=fwd, d1=0.5, d2=0.25, m1=0.5, m2=0.5)
-            x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, keep_param='F')
-            all_x_t_n_Ar1.append(x_t_n)
-            all_P_t_n_Ar1.append(P_t_n)
-            em_iters_Ar1[vidx] = src1.em_log['em_iter']
+            components = Osc(a=0.99, freq=f, Fs=Fs)
+            src1 = Src(components=components, fwd=fwd)
+            x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, keep_param='R')
+            all_x_t_n_Osc_2.append(x_t_n)
+            all_P_t_n_Osc_2.append(P_t_n)
+            em_iters_Osc_2[vidx] = src1.em_log['em_iter']
+
+            components = Osc(a=0.99, freq=f, Fs=Fs)
+            src1 = Src(components=components, fwd=fwd)
+            x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, keep_param=('F', 'R'))
+            all_x_t_n_Osc_3.append(x_t_n)
+            all_P_t_n_Osc_3.append(P_t_n)
+            em_iters_Osc_3[vidx] = src1.em_log['em_iter']
+
+            components = Osc(a=0.99, freq=f, Fs=Fs)
+            src1 = Src(components=components, fwd=fwd, d1=0.1, d2=0.05)
+            x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, keep_param=('F', 'R'))
+            all_x_t_n_Osc_4.append(x_t_n)
+            all_P_t_n_Osc_4.append(P_t_n)
+            em_iters_Osc_4[vidx] = src1.em_log['em_iter']
+
+            components = Osc(a=0.99, freq=f, Fs=Fs)
+            src1 = Src(components=components, fwd=fwd, d1=0.1, d2=0.05, m1=0.9, m2=0.1)
+            x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, keep_param=('F', 'R'))
+            all_x_t_n_Osc_5.append(x_t_n)
+            all_P_t_n_Osc_5.append(P_t_n)
+            em_iters_Osc_5[vidx] = src1.em_log['em_iter']
 
 # Save the results
-with open('results/Experiment_1-4_Osc_results.pickle', 'wb') as openfile:
-    pickle.dump((all_x_t_n_Osc, all_P_t_n_Osc, em_iters_Osc), openfile)
+with open('results/Experiment_1-5_Osc-1_results.pickle', 'wb') as openfile:
+    pickle.dump((all_x_t_n_Osc_1, all_P_t_n_Osc_1, em_iters_Osc_1), openfile)
 
-with open('results/Experiment_1-4_Arn_results.pickle', 'wb') as openfile:
-    pickle.dump((all_x_t_n_Ar1, all_P_t_n_Ar1, em_iters_Ar1), openfile)
+with open('results/Experiment_1-5_Osc-2_results.pickle', 'wb') as openfile:
+    pickle.dump((all_x_t_n_Osc_2, all_P_t_n_Osc_2, em_iters_Osc_2), openfile)
+
+with open('results/Experiment_1-5_Osc-3_results.pickle', 'wb') as openfile:
+    pickle.dump((all_x_t_n_Osc_3, all_P_t_n_Osc_3, em_iters_Osc_3), openfile)
+
+with open('results/Experiment_1-5_Osc-4_results.pickle', 'wb') as openfile:
+    pickle.dump((all_x_t_n_Osc_4, all_P_t_n_Osc_4, em_iters_Osc_4), openfile)
+
+with open('results/Experiment_1-5_Osc-5_results.pickle', 'wb') as openfile:
+    pickle.dump((all_x_t_n_Osc_5, all_P_t_n_Osc_5, em_iters_Osc_5), openfile)
