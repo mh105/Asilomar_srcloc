@@ -51,7 +51,7 @@ data[center_seed, :] = 1
 
 hemi = 0
 vert = source_to_vert[hemi][center_seed]  # vertex indexing
-for order, neighbor_scale in zip(['first', 'second'], (0.1, 0.05)):
+for order, neighbor_scale in zip(['first', 'second'], (0.5, 0.25)):
     vert_neighbor = np.asarray([vert_to_source[hemi].get(x, float('nan'))
                                 for x in neighbors[hemi][vert][order]])
     # Filter out neighbor vertices that are not sources
