@@ -40,16 +40,10 @@ atlas_info = get_atlas_source_indices(labels, src)
 vert_to_source, source_to_vert = Src._vertex_source_mapping(src)
 neighbors = Src._define_neighbors(src)
 
-# Get frontal ROIs
-frontal_rois = []
-for key, value in atlas_info.items():
-    if value[1] == 'Frontal-lh':
-        frontal_rois.append(key)
-
 # Pick one ROI
-active_idx = atlas_info['rostralmiddlefrontal-lh'][0]
+active_idx = atlas_info['rostralmiddlefrontal-lh']
 
-# Pick one of the sources
+# Pick one of the sources in the ROI
 center_seed = np.random.choice(active_idx)
 
 data = np.zeros((G.shape[1], 1000))
