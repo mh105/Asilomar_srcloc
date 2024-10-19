@@ -88,7 +88,7 @@ for hemi in range(len(src)):
             # Dynamic source localization
             components = Osc(a=0.99, freq=f, Fs=Fs)
             src1 = Src(components=components, fwd=fwd, d1=0.1, d2=0.05, m1=0.9, m2=0.1)
-            x_t_n, P_t_n = src1.dmap_em(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, keep_param='R')
+            x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, keep_param='R')
 
             # Store the hidden state estimates in resolution matrix
             res_mat[:, vidx] = x_t_n[:, 100:-100].max(axis=1)[0:-1:2]  # cutoff beginning and end
