@@ -76,13 +76,14 @@ data[center_seed, :] = 1
 # brain_kwargs = dict(alpha=1, background="white", cortex="low_contrast")
 # brain = mne.viz.Brain(subject, subjects_dir=subjects_dir, **brain_kwargs)
 
-# stc = mne.SourceEstimate(data=data, vertices=[src[0]['vertno'], src[1]['vertno']],
-#                          tmin=0, tstep=1, subject='fs_FS6')
-# brain = stc.plot(hemi='both',
-#                  title='Testing',
-#                  subjects_dir='data/JCHU_F_92_young/mri/simnibs_pipe/mri2mesh',
-#                  clim=dict(kind='value', lims=[0, 0.04, 0.15]),
-#                  views='lateral', initial_time=100,  smoothing_steps=10)
+if __name__ != '__main__':
+    stc = mne.SourceEstimate(data=data, vertices=[src[0]['vertno'], src[1]['vertno']],
+                             tmin=0, tstep=1, subject='fs_FS6')
+    brain = stc.plot(hemi='both',
+                     title='Testing',
+                     subjects_dir='data/JCHU_F_92_young/mri/simnibs_pipe/mri2mesh',
+                     clim=dict(kind='value', lims=[0, 0.04, 0.15]),
+                     views='lateral', initial_time=100,  smoothing_steps=10)
 
 # %% Now we simulate activity in the active sources and perform localization
 
@@ -132,7 +133,7 @@ with Timer():
     y = G @ x + rng.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
 
     # Dynamic source localization
-    components = Osc(a=0.95, freq=f, Fs=Fs)
+    components = Osc(a=0.98, freq=f, Fs=Fs)
     src1 = Src(components=components, fwd=fwd)
     x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, update_param='Q')
     all_x_t_n_Osc.append(x_t_n)
@@ -140,7 +141,7 @@ with Timer():
     em_iters_Osc = src1.em_log['em_iter']
 
     components = Arn(coeff=0.95)
-    src1 = Src(components=components, fwd=fwd)
+    src1 = Src(components=components, fwd=fwd, d1=0.5, d2=0.25, m1=0.5, m2=0.5)
     x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, update_param='Q')
     all_x_t_n_Ar1.append(x_t_n)
     all_P_t_n_Ar1.append(P_t_n)
@@ -152,3 +153,35 @@ with open('results/Experiment_2_Osc_results.pickle', 'wb') as openfile:
 
 with open('results/Experiment_2_Arn_results.pickle', 'wb') as openfile:
     pickle.dump((all_x_t_n_Ar1, all_P_t_n_Ar1, em_iters_Ar1), openfile)
+
+if __name__ != '__main__':
+    # Load the results
+    with open('results/Experiment_2_Osc_results.pickle', 'rb') as openfile:
+        all_x_t_n_Osc, all_P_t_n_Osc, em_iters_Osc = pickle.load(openfile)
+
+    with open('results/Experiment_2_Arn_results.pickle', 'rb') as openfile:
+        all_x_t_n_Ar1, all_P_t_n_Ar1, em_iters_Ar1 = pickle.load(openfile)
+
+    x_t_n = all_x_t_n_Osc[0]
+    data = np.sqrt(np.mean(x_t_n ** 2, axis=1))[0:-1:2]
+
+    # Visualize the localized source activity
+    stc = mne.SourceEstimate(data=data, vertices=[src[0]['vertno'], src[1]['vertno']],
+                             tmin=0, tstep=1, subject='fs_FS6')
+    brain = stc.plot(hemi='both',
+                     title='Testing',
+                     subjects_dir='data/JCHU_F_92_young/mri/simnibs_pipe/mri2mesh',
+                     clim=dict(kind='value', lims=[0, 0.04, 0.15]),
+                     views='lateral', initial_time=100,  smoothing_steps=10)
+
+    x_t_n = all_x_t_n_Ar1[0]
+    data = np.sqrt(np.mean(x_t_n ** 2, axis=1))
+
+    # Visualize the localized source activity
+    stc = mne.SourceEstimate(data=data, vertices=[src[0]['vertno'], src[1]['vertno']],
+                             tmin=0, tstep=1, subject='fs_FS6')
+    brain = stc.plot(hemi='both',
+                     title='Testing',
+                     subjects_dir='data/JCHU_F_92_young/mri/simnibs_pipe/mri2mesh',
+                     clim=dict(kind='value', lims=[0, 0.04, 0.15]),
+                     views='lateral', initial_time=100,  smoothing_steps=10)
