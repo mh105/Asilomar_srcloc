@@ -9,9 +9,9 @@ import numpy as np
 from codetiming import Timer
 from somata import OscillatorModel as Osc
 from somata.source_loc import SourceLocModel as Src
-from simulation_utils import simulate_oscillation, resolution_matrix_metrics
-import matplotlib.pyplot as plt
-from matplotlib.ticker import FormatStrFormatter
+from simulation_utils import simulate_oscillation  # resolution_matrix_metrics
+# import matplotlib.pyplot as plt
+# from matplotlib.ticker import FormatStrFormatter
 
 # Load forward model G
 fwd = mne.read_forward_solution('eeganes02-neeg64-fwd.fif')
