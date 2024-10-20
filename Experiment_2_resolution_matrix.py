@@ -93,7 +93,7 @@ simulation_mode = 'oscillator'  # (oscillator or sinusoid) used for simulating s
 Fs = 100  # (Hz) sampling frequency
 T = 10  # (s) total duration of simulated activity
 a = 0.98  # (unitless) damping factor, only relevant if using Matsuda oscillator
-f = 10  # (Hz) center frequency of oscillation in Hertz
+f = 5  # (Hz) center frequency of oscillation in Hertz
 Q = 1  # (Am^2) state noise covariance for the active oscillator only
 mu0 = [0, 0]  # (Am) initial state mean for the active oscillator only
 Q0 = Q  # (Am^2) initial state variance for the active oscillator only
@@ -134,7 +134,7 @@ with Timer():
     y = G @ x + rng.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
 
     # Dynamic source localization
-    components = Osc(a=0.98, freq=f, Fs=Fs)
+    components = Osc(a=0.95, freq=f, Fs=Fs)
     src1 = Src(components=components, fwd=fwd, d1=0.5, d2=0.25, m1=0.5, m2=0.5)
     x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, update_param='Q')
     all_x_t_n_Osc.append(x_t_n)
