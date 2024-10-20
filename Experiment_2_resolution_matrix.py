@@ -155,6 +155,7 @@ with open('results/Experiment_2_Osc_results.pickle', 'wb') as openfile:
 with open('results/Experiment_2_Arn_results.pickle', 'wb') as openfile:
     pickle.dump((all_x_t_n_Ar1, all_P_t_n_Ar1, em_iters_Ar1), openfile)
 
+# %% Visualize the results
 if __name__ != '__main__':
     # Load the results
     with open('results/Experiment_2_Osc_results.pickle', 'rb') as openfile:
