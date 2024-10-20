@@ -6,6 +6,7 @@ Simulation studies Experiment 2:
 - Activate a patch of source within an ROI from atlas
 """
 import mne
+import pickle
 import numpy as np
 from codetiming import Timer
 from somata import OscillatorModel as Osc
@@ -144,3 +145,10 @@ with Timer():
     all_x_t_n_Ar1.append(x_t_n)
     all_P_t_n_Ar1.append(P_t_n)
     em_iters_Ar1 = src1.em_log['em_iter']
+
+# Save the results
+with open('results/Experiment_2_Osc_results.pickle', 'wb') as openfile:
+    pickle.dump((all_x_t_n_Osc, all_P_t_n_Osc, em_iters_Osc), openfile)
+
+with open('results/Experiment_2_Arn_results.pickle', 'wb') as openfile:
+    pickle.dump((all_x_t_n_Ar1, all_P_t_n_Ar1, em_iters_Ar1), openfile)
