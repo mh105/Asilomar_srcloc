@@ -135,14 +135,14 @@ with Timer():
 
     # Dynamic source localization
     components = Osc(a=0.9, freq=f, Fs=Fs)
-    src1 = Src(components=components, fwd=fwd, m1=0.51, m2=0.49)
+    src1 = Src(components=components, fwd=fwd, d1=0.5, d2=0.25, m1=0.5, m2=0.5)
     x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, update_param='Q')
     all_x_t_n_Osc.append(x_t_n)
     all_P_t_n_Osc.append(P_t_n)
     em_iters_Osc = src1.em_log['em_iter']
 
     components = Arn(coeff=0.95)
-    src1 = Src(components=components, fwd=fwd, m1=0.51, m2=0.49)
+    src1 = Src(components=components, fwd=fwd, d1=0.5, d2=0.25, m1=0.5, m2=0.5)
     x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, update_param='Q')
     all_x_t_n_Ar1.append(x_t_n)
     all_P_t_n_Ar1.append(P_t_n)
