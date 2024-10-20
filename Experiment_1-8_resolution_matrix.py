@@ -76,7 +76,7 @@ with Timer():
 
             # Find the indices of first/second-order neighbors
             vert = source_to_vert[hemi][vidx]  # vertex indexing
-            for order, neighbor_scale in zip([1, 2], (0.1, 0.05)):
+            for order, neighbor_scale in zip([1, 2], (0.5, 0.25)):
                 vert_neighbor = np.asarray([vert_to_source[hemi].get(x, float('nan'))
                                             for x in neighbors[hemi][vert][order]])
 
@@ -92,7 +92,7 @@ with Timer():
 
             # Dynamic source localization
             components = Osc(a=0.95, freq=f, Fs=Fs)
-            src1 = Src(components=components, fwd=fwd)
+            src1 = Src(components=components, fwd=fwd, d1=0.5, d2=0.25, m1=0.5, m2=0.5)
             x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, update_param='Q')
             all_x_t_n_Osc.append(x_t_n)
             all_P_t_n_Osc.append(P_t_n)
