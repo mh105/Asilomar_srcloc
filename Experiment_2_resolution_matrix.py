@@ -76,13 +76,13 @@ data[center_seed, :] = 1
 # brain_kwargs = dict(alpha=1, background="white", cortex="low_contrast")
 # brain = mne.viz.Brain(subject, subjects_dir=subjects_dir, **brain_kwargs)
 
-stc = mne.SourceEstimate(data=data, vertices=[src[0]['vertno'], src[1]['vertno']],
-                         tmin=0, tstep=1, subject='fs_FS6')
-brain = stc.plot(hemi='both',
-                 title='Testing',
-                 subjects_dir='data/JCHU_F_92_young/mri/simnibs_pipe/mri2mesh',
-                 clim=dict(kind='value', lims=[0, 0.04, 0.15]),
-                 views='lateral', initial_time=100,  smoothing_steps=10)
+# stc = mne.SourceEstimate(data=data, vertices=[src[0]['vertno'], src[1]['vertno']],
+#                          tmin=0, tstep=1, subject='fs_FS6')
+# brain = stc.plot(hemi='both',
+#                  title='Testing',
+#                  subjects_dir='data/JCHU_F_92_young/mri/simnibs_pipe/mri2mesh',
+#                  clim=dict(kind='value', lims=[0, 0.04, 0.15]),
+#                  views='lateral', initial_time=100,  smoothing_steps=10)
 
 # %% Now we simulate activity in the active sources and perform localization
 
@@ -90,7 +90,7 @@ brain = stc.plot(hemi='both',
 simulation_mode = 'oscillator'  # (oscillator or sinusoid) used for simulating source activity
 Fs = 100  # (Hz) sampling frequency
 T = 10  # (s) total duration of simulated activity
-a = 0.99  # (unitless) damping factor, only relevant if using Matsuda oscillator
+a = 0.98  # (unitless) damping factor, only relevant if using Matsuda oscillator
 f = 5  # (Hz) center frequency of oscillation in Hertz
 Q = 1  # (Am^2) state noise covariance for the active oscillator only
 mu0 = [0, 0]  # (Am) initial state mean for the active oscillator only
@@ -132,7 +132,7 @@ with Timer():
     y = G @ x + rng.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
 
     # Dynamic source localization
-    components = Osc(a=0.99, freq=f, Fs=Fs)
+    components = Osc(a=0.95, freq=f, Fs=Fs)
     src1 = Src(components=components, fwd=fwd)
     x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, update_param='Q')
     all_x_t_n_Osc.append(x_t_n)
