@@ -5,6 +5,7 @@ Simulation studies Experiment 2:
 
 - Activate a patch of source within an ROI from atlas
 """
+
 import mne
 import pickle
 import numpy as np
@@ -92,7 +93,7 @@ simulation_mode = 'oscillator'  # (oscillator or sinusoid) used for simulating s
 Fs = 100  # (Hz) sampling frequency
 T = 10  # (s) total duration of simulated activity
 a = 0.98  # (unitless) damping factor, only relevant if using Matsuda oscillator
-f = 5  # (Hz) center frequency of oscillation in Hertz
+f = 10  # (Hz) center frequency of oscillation in Hertz
 Q = 1  # (Am^2) state noise covariance for the active oscillator only
 mu0 = [0, 0]  # (Am) initial state mean for the active oscillator only
 Q0 = Q  # (Am^2) initial state variance for the active oscillator only
@@ -133,15 +134,15 @@ with Timer():
     y = G @ x + rng.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
 
     # Dynamic source localization
-    components = Osc(a=0.98, freq=f, Fs=Fs)
-    src1 = Src(components=components, fwd=fwd)
+    components = Osc(a=0.9, freq=f, Fs=Fs)
+    src1 = Src(components=components, fwd=fwd, m1=0.51, m2=0.49)
     x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, update_param='Q')
     all_x_t_n_Osc.append(x_t_n)
     all_P_t_n_Osc.append(P_t_n)
     em_iters_Osc = src1.em_log['em_iter']
 
     components = Arn(coeff=0.95)
-    src1 = Src(components=components, fwd=fwd, d1=0.5, d2=0.25, m1=0.5, m2=0.5)
+    src1 = Src(components=components, fwd=fwd, m1=0.51, m2=0.49)
     x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, update_param='Q')
     all_x_t_n_Ar1.append(x_t_n)
     all_P_t_n_Ar1.append(P_t_n)
