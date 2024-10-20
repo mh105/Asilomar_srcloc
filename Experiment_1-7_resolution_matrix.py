@@ -76,7 +76,7 @@ with Timer():
 
             # Find the indices of first/second-order neighbors
             vert = source_to_vert[hemi][vidx]  # vertex indexing
-            for order, neighbor_scale in zip(['first', 'second'], (0.1, 0.05)):
+            for order, neighbor_scale in zip([1, 2], (0.1, 0.05)):
                 vert_neighbor = np.asarray([vert_to_source[hemi].get(x, float('nan'))
                                             for x in neighbors[hemi][vert][order]])
 
