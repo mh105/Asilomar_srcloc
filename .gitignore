@@ -1,5 +1,6 @@
 results/
 data/
+*.xlsx
 
 # MacOS Finder
 .DS_Store
