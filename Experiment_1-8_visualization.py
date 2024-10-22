@@ -30,13 +30,13 @@ for vidx in range(nsources):
     x_t_n = all_x_t_n_Osc[vidx]
     res_mat_Osc[:, vidx] = np.sqrt(np.mean(x_t_n ** 2, axis=1))[0:-1:2]
 
-plt.figure()
-plt.imshow(res_mat_Osc, cmap='hot', vmin=0, vmax=0.01, interpolation='none')
-plt.xlabel('# Source Vertex', fontsize=16)
-plt.ylabel('# Source Vertex', fontsize=16)
-plt.title('Osc ResMat', fontsize=20)
-plt.colorbar()
-plt.show()
+# plt.figure()
+# plt.imshow(res_mat_Osc, cmap='hot', vmin=0, vmax=0.01, interpolation='none')
+# plt.xlabel('# Source Vertex', fontsize=16)
+# plt.ylabel('# Source Vertex', fontsize=16)
+# plt.title('Osc ResMat', fontsize=20)
+# plt.colorbar()
+# plt.show()
 
 # %% Load the results for the AR1 dynamic source localization
 with open('results/Experiment_1-8_Arn_results.pickle', 'rb') as openfile:
@@ -49,13 +49,13 @@ for vidx in range(nsources):
     x_t_n = all_x_t_n_Ar1[vidx]
     res_mat_Ar1[:, vidx] = np.sqrt(np.mean(x_t_n ** 2, axis=1))
 
-plt.figure()
-plt.imshow(res_mat_Ar1, cmap='hot', vmin=0, vmax=0.01, interpolation='none')
-plt.xlabel('# Source Vertex', fontsize=16)
-plt.ylabel('# Source Vertex', fontsize=16)
-plt.title('Ar1 ResMat', fontsize=20)
-plt.colorbar()
-plt.show()
+# plt.figure()
+# plt.imshow(res_mat_Ar1, cmap='hot', vmin=0, vmax=0.01, interpolation='none')
+# plt.xlabel('# Source Vertex', fontsize=16)
+# plt.ylabel('# Source Vertex', fontsize=16)
+# plt.title('Ar1 ResMat', fontsize=20)
+# plt.colorbar()
+# plt.show()
 
 # %% Compute the MNE resolution matrix
 MNE_R = R * np.eye(G.shape[0], dtype=np.float64)
@@ -64,20 +64,23 @@ MNE_Q = np.trace(MNE_R) / np.trace(MNE_G @ MNE_G.T) * SNR_power * np.eye(MNE_G.s
 M = MNE_Q @ MNE_G.T @ np.linalg.inv(MNE_G @ MNE_Q @ MNE_G.T + MNE_R)
 res_mat_MNE = np.abs(M @ G)
 
-plt.figure()
-plt.imshow(res_mat_MNE, cmap='hot', vmin=0, vmax=0.01, interpolation='none')
-plt.xlabel('# Source Vertex', fontsize=16)
-plt.ylabel('# Source Vertex', fontsize=16)
-plt.title('MNE ResMat', fontsize=20)
-plt.colorbar()
-plt.show()
+# plt.figure()
+# plt.imshow(res_mat_MNE, cmap='hot', vmin=0, vmax=0.01, interpolation='none')
+# plt.xlabel('# Source Vertex', fontsize=16)
+# plt.ylabel('# Source Vertex', fontsize=16)
+# plt.title('MNE ResMat', fontsize=20)
+# plt.colorbar()
+# plt.show()
 
 # %% Visualize the metrics for the resolution matrices
 fig, ax = plot_resmat_metrics(res_mat_Osc, fwd['src'], 'Osc')
-fig.show()
+fig.savefig('figures/Experiment_1-8_Osc_metrics.png')
+plt.close(fig)
 
 fig, ax = plot_resmat_metrics(res_mat_Ar1, fwd['src'], 'Ar1')
-fig.show()
+fig.savefig('figures/Experiment_1-8_Ar1_metrics.png')
+plt.close(fig)
 
 fig, ax = plot_resmat_metrics(res_mat_MNE, fwd['src'], 'MNE')
-fig.show()
+fig.savefig('figures/Experiment_1-8_MNE_metrics.png')
+plt.close(fig)
