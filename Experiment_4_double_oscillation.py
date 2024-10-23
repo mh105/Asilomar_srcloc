@@ -92,7 +92,7 @@ max_iter = 10
 # Simulate the same source activity that will be re-used across ROIs
 o1 = Osc(a=0.98, freq=1, sigma2=Q * 3, Fs=Fs, R=0)
 _, slow_activity = o1.simulate(duration=T)
-o2 = Osc(a=0.96, freq=10, sigma2=Q, Fs=Fs, R=0)
+o2 = Osc(a=0.98, freq=10, sigma2=Q, Fs=Fs, R=0)
 _, alpha_activity = o2.simulate(duration=T)
 simulated_src = slow_activity + alpha_activity
 rms_amplitude = np.sqrt(np.mean(simulated_src ** 2))
@@ -132,7 +132,7 @@ with Timer():
     y = G @ x + observation_noise
 
     # Dynamic source localization
-    components = [Osc(a=0.95, freq=1, Fs=Fs), Osc(a=0.95, freq=10, Fs=Fs)]
+    components = [Osc(a=0.98, freq=1, Fs=Fs), Osc(a=0.98, freq=10, Fs=Fs)]
     src1 = Src(components=components, fwd=fwd, d1=0.5, d2=0.25, m1=0.5, m2=0.5)
     x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, update_param='Q')
     all_x_t_n_Osc.append(x_t_n)
@@ -196,5 +196,10 @@ if __name__ != '__main__':
                      clim=dict(kind='value', lims=[0, 0.04, 0.15]),
                      views='lateral', initial_time=100,  smoothing_steps=10)
 
+    # import matplotlib.pyplot as plt
+
     # plt.plot(slow_x_t_n[0:-1:2, :][vidx, :])
     # plt.plot(alpha_x_t_n[0:-1:2, :][vidx, :])
+
+    # plt.plot(slow_x_t_n[0:-1:2, :][np.argmax(np.sqrt(np.mean(slow_x_t_n ** 2, axis=1))[0:-1:2]), :])
+    # plt.plot(alpha_x_t_n[0:-1:2, :][np.argmax(np.sqrt(np.mean(alpha_x_t_n ** 2, axis=1))[0:-1:2]), :])
