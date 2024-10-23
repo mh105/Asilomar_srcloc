@@ -3,7 +3,7 @@ Simulation studies Experiment 3:
 
         Activate a region on the cortex and compare the recovered result
 
-- Activate a patch of source within an ROI from the Destrieux Atlas
+- Activate a patch of sources within an ROI from the Destrieux Atlas
 - Rotate through all atlas ROIs on one hemisphere
 - Compute localized energy ratio as well as ROC curve
 """

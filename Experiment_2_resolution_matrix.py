@@ -3,7 +3,7 @@ Simulation studies Experiment 2:
 
         Activate a region on the cortex and compare the recovered result
 
-- Activate a patch of source within an ROI from atlas
+- Activate a patch of sources within an ROI from atlas
 """
 
 import mne
@@ -48,9 +48,9 @@ src = fwd['src']
 # Get the indices of the source space corresponding to atlas ROIs
 atlas_info = get_atlas_source_indices(labels, src)
 vert_to_source, source_to_vert = Src._vertex_source_mapping(src)
-order = 3
+patch_order = 3
 scaling = (0.6, 0.3, 0.1)
-neighbors = Src._define_neighbors(src, order=order)
+neighbors = Src._define_neighbors(src, order=patch_order)
 
 # Pick one ROI
 active_idx = atlas_info['S_front_middle-lh']  # ['rostralmiddlefrontal-lh']
@@ -64,7 +64,7 @@ data[center_seed, :] = 1
 
 # hemi = 0
 # vert = source_to_vert[hemi][center_seed]  # vertex indexing
-# for order, neighbor_scale in zip(list(range(1, order)), scaling):
+# for order, neighbor_scale in zip(list(range(1, patch_order + 1)), scaling):
 #     vert_neighbor = np.asarray([vert_to_source[hemi].get(x, float('nan'))
 #                                 for x in neighbors[hemi][vert][order]])
 #     # Filter out neighbor vertices that are not sources
