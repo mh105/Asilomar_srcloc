@@ -87,10 +87,6 @@ all_x_t_n_Osc = []
 all_P_t_n_Osc = []
 em_iters_Osc = np.zeros(nsources, dtype=np.float64)
 
-all_x_t_n_Ar1 = []
-all_P_t_n_Ar1 = []
-em_iters_Ar1 = np.zeros(nsources, dtype=np.float64)
-
 max_iter = 10
 
 # Simulate the same source activity that will be re-used across ROIs
