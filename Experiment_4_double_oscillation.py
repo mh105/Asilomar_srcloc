@@ -80,7 +80,7 @@ src_scale = scalp_amplitude / np.mean(abs(G), axis=(0, 1))
 
 # Assume a noiseless background of source activity for resolution matrix calculation
 neeg, nsources = G.shape  # (129, 5124)
-ntime = T * Fs + 1
+ntime = T * Fs
 x_blank = np.zeros((G.shape[1], ntime))
 
 all_x_t_n_Osc = []
@@ -94,7 +94,7 @@ o1 = Osc(a=a, freq=1, sigma2=Q, Fs=Fs, R=0)
 _, slow_activity = o1.simulate(duration=T)
 o2 = Osc(a=a, freq=10, sigma2=Q, Fs=Fs, R=0)
 _, alpha_activity = o2.simulate(duration=T)
-simulated_src = slow_activity + alpha_activity
+simulated_src = np.squeeze(slow_activity + alpha_activity)
 rms_amplitude = np.sqrt(np.mean(simulated_src ** 2))
 
 # Simulate the same observation noise that will be re-used across ROIs
