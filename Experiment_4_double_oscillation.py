@@ -65,7 +65,7 @@ if __name__ != '__main__':
 # simulation_mode = 'oscillator'  # (oscillator or sinusoid) used for simulating source activity
 Fs = 100  # (Hz) sampling frequency
 T = 10  # (s) total duration of simulated activity
-a = 0.98  # (unitless) damping factor, only relevant if using Matsuda oscillator
+# a = 0.98  # (unitless) damping factor, only relevant if using Matsuda oscillator
 # f = 10  # (Hz) center frequency of oscillation in Hertz
 Q = 1  # (Am^2) state noise covariance for the active oscillator only
 # mu0 = [0, 0]  # (Am) initial state mean for the active oscillator only
@@ -80,7 +80,7 @@ src_scale = scalp_amplitude / np.mean(abs(G), axis=(0, 1))
 
 # Assume a noiseless background of source activity for resolution matrix calculation
 neeg, nsources = G.shape  # (129, 5124)
-ntime = T * Fs
+ntime = T * Fs  # + 1 removed since using o1.simulate()
 x_blank = np.zeros((G.shape[1], ntime))
 
 all_x_t_n_Osc = []
@@ -90,12 +90,20 @@ em_iters_Osc = np.zeros(nsources, dtype=np.float64)
 max_iter = 10
 
 # Simulate the same source activity that will be re-used across ROIs
-o1 = Osc(a=a, freq=1, sigma2=Q, Fs=Fs, R=0)
+o1 = Osc(a=0.98, freq=1, sigma2=Q * 3, Fs=Fs, R=0)
 _, slow_activity = o1.simulate(duration=T)
-o2 = Osc(a=a, freq=10, sigma2=Q, Fs=Fs, R=0)
+o2 = Osc(a=0.96, freq=10, sigma2=Q, Fs=Fs, R=0)
 _, alpha_activity = o2.simulate(duration=T)
-simulated_src = np.squeeze(slow_activity + alpha_activity)
+simulated_src = slow_activity + alpha_activity
 rms_amplitude = np.sqrt(np.mean(simulated_src ** 2))
+
+# scale to produce the right average scalp SNR
+slow_true = src_scale / rms_amplitude * slow_activity
+alpha_true = src_scale / rms_amplitude * alpha_activity
+
+# plt.plot(np.squeeze(slow_true + alpha_true))
+# plt.plot(slow_true.T)
+# plt.plot(alpha_true.T)
 
 # Simulate the same observation noise that will be re-used across ROIs
 observation_noise = rng.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
@@ -106,7 +114,7 @@ vidx = center_seeds[0]
 with Timer():
     # Place simulated_src in the correct row of x that corresponds to the center source
     x = np.copy(x_blank)
-    x[vidx, :] += src_scale / rms_amplitude * simulated_src  # scale to the right average scalp SNR
+    x[vidx, :] += np.squeeze(slow_true + alpha_true)
 
     # Activate the neighboring sources around the center source
     vert = source_to_vert[hemi][vidx]  # vertex indexing
@@ -133,18 +141,20 @@ with Timer():
 
 # Save the results
 with open('results/Experiment_4_Osc_results.pickle', 'wb') as openfile:
-    pickle.dump((all_x_t_n_Osc, all_P_t_n_Osc, em_iters_Osc), openfile)
+    pickle.dump((all_x_t_n_Osc, all_P_t_n_Osc, em_iters_Osc, slow_true, alpha_true), openfile)
 
 # %% Visualize the results
 if __name__ != '__main__':
     # Load the results
     with open('results/Experiment_4_Osc_results.pickle', 'rb') as openfile:
-        all_x_t_n_Osc, all_P_t_n_Osc, em_iters_Osc = pickle.load(openfile)
+        all_x_t_n_Osc, all_P_t_n_Osc, em_iters_Osc, slow_true, alpha_true = pickle.load(openfile)
 
     x_t_n = all_x_t_n_Osc[0]
-    data = np.sqrt(np.mean(x_t_n ** 2, axis=1))[0:-1:2]
+    slow_x_t_n = x_t_n[:nsources * 2, :]
+    alpha_x_t_n = x_t_n[nsources * 2:, :]
 
-    # Visualize the localized source activity
+    # Visualize the localized source activity for slow
+    data = np.sqrt(np.mean(slow_x_t_n ** 2, axis=1))[0:-1:2]
     stc = mne.SourceEstimate(data=data, vertices=[src[0]['vertno'], src[1]['vertno']],
                              tmin=0, tstep=1, subject='fs_FS6')
     brain = stc.plot(hemi='both',
@@ -152,3 +162,39 @@ if __name__ != '__main__':
                      subjects_dir='data/JCHU_F_92_young/mri/simnibs_pipe/mri2mesh',
                      clim=dict(kind='value', lims=[0, 0.04, 0.15]),
                      views='lateral', initial_time=100,  smoothing_steps=10)
+
+    # Visualize the localized source activity for alpha
+    data = np.sqrt(np.mean(alpha_x_t_n ** 2, axis=1))[0:-1:2]
+    stc = mne.SourceEstimate(data=data, vertices=[src[0]['vertno'], src[1]['vertno']],
+                             tmin=0, tstep=1, subject='fs_FS6')
+    brain = stc.plot(hemi='both',
+                     title='Testing',
+                     subjects_dir='data/JCHU_F_92_young/mri/simnibs_pipe/mri2mesh',
+                     clim=dict(kind='value', lims=[0, 0.04, 0.15]),
+                     views='lateral', initial_time=100,  smoothing_steps=10)
+
+    # Visualize the true activated patch of sources
+    data = np.zeros((G.shape[1], 1000))
+    data[vidx, :] = 1
+    # Activate the neighboring sources around the center source
+    vert = source_to_vert[hemi][vidx]  # vertex indexing
+    for order, neighbor_scale in zip(list(range(1, patch_order + 1)), scaling):
+        vert_neighbor = np.asarray([vert_to_source[hemi].get(x, float('nan'))
+                                    for x in neighbors[hemi][vert][order]])
+        # Filter out neighbor vertices that are not sources
+        valid_idx = np.invert(np.isnan(vert_neighbor))
+        vert_neighbor = vert_neighbor[valid_idx].astype(dtype=int)
+
+        # Add the same activity to the neighbor sources
+        data[vert_neighbor, :] += neighbor_scale * data[vidx, :]
+
+    stc = mne.SourceEstimate(data=data, vertices=[src[0]['vertno'], src[1]['vertno']],
+                             tmin=0, tstep=1, subject='fs_FS6')
+    brain = stc.plot(hemi='both',
+                     title='Testing',
+                     subjects_dir='data/JCHU_F_92_young/mri/simnibs_pipe/mri2mesh',
+                     clim=dict(kind='value', lims=[0, 0.04, 0.15]),
+                     views='lateral', initial_time=100,  smoothing_steps=10)
+
+    # plt.plot(slow_x_t_n[0:-1:2, :][vidx, :])
+    # plt.plot(alpha_x_t_n[0:-1:2, :][vidx, :])
