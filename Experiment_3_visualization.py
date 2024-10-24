@@ -51,21 +51,21 @@ roc_fa_Osc = np.zeros((len(atlas_info), len(percentiles)))
 roc_hit_Ar1 = np.zeros((len(atlas_info), len(percentiles)))
 roc_fa_Ar1 = np.zeros((len(atlas_info), len(percentiles)))
 
-for (ROI_name, active_idx), vidx in zip(atlas_info.items(), range(len(atlas_info))):
-    print(f'Processing the {vidx}th ROI: {ROI_name}...')
+for (ROI_name, active_idx), ii in zip(atlas_info.items(), range(len(atlas_info))):
+    print(f'Processing the {ii}th ROI: {ROI_name}...')
     # Save the ROI_names in order to be reused later
     ROI_names.append(ROI_name)
     # Compute the RMS of the localization distributions
-    Osc_activity = np.sqrt(np.mean(all_x_t_n_Osc[vidx] ** 2, axis=1))[0:-1:2]
-    Ar1_activity = np.sqrt(np.mean(all_x_t_n_Ar1[vidx] ** 2, axis=1))
+    Osc_activity = np.sqrt(np.mean(all_x_t_n_Osc[ii] ** 2, axis=1))[0:-1:2]
+    Ar1_activity = np.sqrt(np.mean(all_x_t_n_Ar1[ii] ** 2, axis=1))
     # Save the localization distributions across sources
     rms_Osc.append(Osc_activity)
     rms_Ar1.append(Ar1_activity)
     # Localized energy ratios
-    squared_x = np.sum(all_x_t_n_Osc[vidx] ** 2, axis=1)[0:-1:2]
-    e_ratios_Osc[vidx] = squared_x[active_idx].sum() / squared_x.sum()
-    squared_x = np.sum(all_x_t_n_Ar1[vidx] ** 2, axis=1)
-    e_ratios_Ar1[vidx] = squared_x[active_idx].sum() / squared_x.sum()
+    squared_x = np.sum(all_x_t_n_Osc[ii] ** 2, axis=1)[0:-1:2]
+    e_ratios_Osc[ii] = squared_x[active_idx].sum() / squared_x.sum()
+    squared_x = np.sum(all_x_t_n_Ar1[ii] ** 2, axis=1)
+    e_ratios_Ar1[ii] = squared_x[active_idx].sum() / squared_x.sum()
     # Compute ROC curves
     inactive_idx = np.setdiff1d(np.arange(G.shape[1]), active_idx)
     # Osc
@@ -75,8 +75,8 @@ for (ROI_name, active_idx), vidx in zip(atlas_info.items(), range(len(atlas_info
         threshold = np.percentile(Osc_activity, percentiles[ii])
         roc_hit[ii] = np.mean(Osc_activity[active_idx] > threshold)
         roc_fa[ii] = np.mean(Osc_activity[inactive_idx] > threshold)
-    roc_hit_Osc[vidx, :] = roc_hit
-    roc_fa_Osc[vidx, :] = roc_fa
+    roc_hit_Osc[ii, :] = roc_hit
+    roc_fa_Osc[ii, :] = roc_fa
     # Ar1
     roc_hit = np.zeros(len(percentiles))
     roc_fa = np.zeros(len(percentiles))
@@ -84,8 +84,8 @@ for (ROI_name, active_idx), vidx in zip(atlas_info.items(), range(len(atlas_info
         threshold = np.percentile(Ar1_activity, percentiles[ii])
         roc_hit[ii] = np.mean(Ar1_activity[active_idx] > threshold)
         roc_fa[ii] = np.mean(Ar1_activity[inactive_idx] > threshold)
-    roc_hit_Ar1[vidx, :] = roc_hit
-    roc_fa_Ar1[vidx, :] = roc_fa
+    roc_hit_Ar1[ii, :] = roc_hit
+    roc_fa_Ar1[ii, :] = roc_fa
 
 # Save the computed results
 with open('results/Experiment_3_visualization_results.pickle', 'wb') as openfile:

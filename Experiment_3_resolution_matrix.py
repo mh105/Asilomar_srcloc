@@ -69,11 +69,11 @@ x_blank = np.zeros((G.shape[1], ntime))
 
 all_x_t_n_Osc = []
 all_P_t_n_Osc = []
-em_iters_Osc = np.zeros(nsources, dtype=np.float64)
+em_iters_Osc = np.zeros(len(atlas_info), dtype=np.float64)
 
 all_x_t_n_Ar1 = []
 all_P_t_n_Ar1 = []
-em_iters_Ar1 = np.zeros(nsources, dtype=np.float64)
+em_iters_Ar1 = np.zeros(len(atlas_info), dtype=np.float64)
 
 max_iter = 10
 
@@ -84,9 +84,9 @@ rms_amplitude = np.sqrt(np.mean(simulated_src ** 2))
 # Simulate the same observation noise that will be re-used across ROIs
 observation_noise = np.random.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
 
-for (ROI_name, active_idx), vidx in zip(atlas_info.items(), range(len(atlas_info))):
+for (ROI_name, active_idx), ii in zip(atlas_info.items(), range(len(atlas_info))):
     with Timer():
-        print(f'Processing the {vidx}th ROI: {ROI_name}...')
+        print(f'Processing the {ii}th ROI: {ROI_name}...')
 
         # Place simulated_src in the correct row of x that corresponds to the activated source/vertex index
         x = np.copy(x_blank)
@@ -101,14 +101,14 @@ for (ROI_name, active_idx), vidx in zip(atlas_info.items(), range(len(atlas_info
         x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, update_param='Q')
         all_x_t_n_Osc.append(x_t_n)
         all_P_t_n_Osc.append(P_t_n)
-        em_iters_Osc[vidx] = src1.em_log['em_iter']
+        em_iters_Osc[ii] = src1.em_log['em_iter']
 
         components = Arn(coeff=0.95)
         src1 = Src(components=components, fwd=fwd, d1=0.5, d2=0.25, m1=0.5, m2=0.5)
         x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, update_param='Q')
         all_x_t_n_Ar1.append(x_t_n)
         all_P_t_n_Ar1.append(P_t_n)
-        em_iters_Ar1[vidx] = src1.em_log['em_iter']
+        em_iters_Ar1[ii] = src1.em_log['em_iter']
 
 # Save the results
 with open('results/Experiment_3_Osc_results.pickle', 'wb') as openfile:
