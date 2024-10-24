@@ -112,7 +112,7 @@ observation_noise = np.random.multivariate_normal(np.zeros(neeg), R * np.eye(nee
 
 vidx = center_seeds[0]
 
-# Simulate activity in the selected patch of sources
+# %% Simulate activity in the selected patch of sources and localize
 with Timer():
     # Place simulated_src in the correct row of x that corresponds to the center source
     x = np.copy(x_blank)
