@@ -64,7 +64,6 @@ with open('results/Experiment_4_Osc_results.pickle', 'rb') as openfile:
         slow_true_save, alpha_true_save, center_seeds_save = pickle.load(openfile)
 
 # %% Manually visualize the localization results for one patch at a time
-
 ii = 3
 vidx = center_seeds_save[ii]
 
