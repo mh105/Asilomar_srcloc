@@ -17,7 +17,7 @@ from somata.source_loc import SourceLocModel as Src
 from somata.source_loc.source_loc_utils import get_atlas_source_indices
 
 # Set the random seed
-rng = np.random.default_rng(1015)
+np.random.seed(1015)
 
 # %% Figure out which sources to activate
 
@@ -106,7 +106,7 @@ alpha_true = src_scale / rms_amplitude * alpha_activity
 # plt.plot(alpha_true.T)
 
 # Simulate the same observation noise that will be re-used across ROIs
-observation_noise = rng.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
+observation_noise = np.random.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
 
 vidx = center_seeds[0]
 
@@ -141,13 +141,14 @@ with Timer():
 
 # Save the results
 with open('results/Experiment_4_Osc_results.pickle', 'wb') as openfile:
-    pickle.dump((all_x_t_n_Osc, all_P_t_n_Osc, em_iters_Osc, slow_true, alpha_true), openfile)
+    pickle.dump((all_x_t_n_Osc, all_P_t_n_Osc, em_iters_Osc, slow_true, alpha_true, center_seeds), openfile)
 
 # %% Visualize the results
 if __name__ != '__main__':
     # Load the results
     with open('results/Experiment_4_Osc_results.pickle', 'rb') as openfile:
-        all_x_t_n_Osc, all_P_t_n_Osc, em_iters_Osc, slow_true, alpha_true = pickle.load(openfile)
+        all_x_t_n_Osc, all_P_t_n_Osc, em_iters_Osc, \
+            slow_true_save, alpha_true_save, center_seeds_save = pickle.load(openfile)
 
     x_t_n = all_x_t_n_Osc[0]
     slow_x_t_n = x_t_n[:nsources * 2, :]
@@ -202,4 +203,15 @@ if __name__ != '__main__':
     # plt.plot(alpha_x_t_n[0:-1:2, :][vidx, :])
 
     # plt.plot(slow_x_t_n[0:-1:2, :][np.argmax(np.sqrt(np.mean(slow_x_t_n ** 2, axis=1))[0:-1:2]), :])
+    # plt.plot(alpha_x_t_n[0:-1:2, :][np.argmax(np.sqrt(np.mean(alpha_x_t_n ** 2, axis=1))[0:-1:2]), :])
+
+    # # Inspect the true source activity in comparison to the localized source activity
+    # plt.plot(np.squeeze(slow_true_save + alpha_true_save))
+    # plt.plot(slow_true_save.T)
+    # plt.plot(alpha_true_save.T)
+
+    # plt.plot(slow_true_save.T)
+    # plt.plot(slow_x_t_n[0:-1:2, :][np.argmax(np.sqrt(np.mean(slow_x_t_n ** 2, axis=1))[0:-1:2]), :])
+
+    # plt.plot(alpha_true_save.T)
     # plt.plot(alpha_x_t_n[0:-1:2, :][np.argmax(np.sqrt(np.mean(alpha_x_t_n ** 2, axis=1))[0:-1:2]), :])

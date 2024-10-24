@@ -18,7 +18,7 @@ from somata.source_loc import SourceLocModel as Src
 from somata.source_loc.source_loc_utils import simulate_oscillation, get_atlas_source_indices
 
 # Set the random seed
-rng = np.random.default_rng(1015)
+np.random.seed(1015)
 
 # %% Figure out which sources to activate
 
@@ -82,7 +82,7 @@ simulated_src = simulate_oscillation(f, a, Q, mu0, Q0, Fs, T, oscillation_type=s
 rms_amplitude = np.sqrt(np.mean(simulated_src ** 2))
 
 # Simulate the same observation noise that will be re-used across ROIs
-observation_noise = rng.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
+observation_noise = np.random.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
 
 for (ROI_name, active_idx), vidx in zip(atlas_info.items(), range(len(atlas_info))):
     with Timer():

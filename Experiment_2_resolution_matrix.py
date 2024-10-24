@@ -16,7 +16,7 @@ from somata.source_loc import SourceLocModel as Src
 from somata.source_loc.source_loc_utils import simulate_oscillation, get_atlas_source_indices
 
 # Set the random seed
-rng = np.random.default_rng(1015)
+np.random.seed(1015)
 
 # %% Figure out which sources to activate
 
@@ -131,7 +131,7 @@ with Timer():
     x[center_seed, :] += src_scale / rms_amplitude * simulated_src  # scale to the right average scalp SNR
 
     # Multiply by fwd model to get EEG scalp activity and add observation noise
-    y = G @ x + rng.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
+    y = G @ x + np.random.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
 
     # Dynamic source localization
     components = Osc(a=0.95, freq=f, Fs=Fs)

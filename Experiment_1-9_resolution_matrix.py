@@ -32,7 +32,7 @@ Q0 = Q  # (Am^2) initial state variance for the active oscillator only
 R = 1  # (V^2) observation noise variance, assuming diagonal covariance matrix with the same noise for each channel
 
 # Set the random seed
-rng = np.random.default_rng(1015)
+np.random.seed(1015)
 
 # Under the assumption of white observation noise, we can control the average SNR on the scalp
 SNR_power = 9
@@ -88,7 +88,7 @@ with Timer():
                 x[vert_neighbor, :] += neighbor_scale * x[vidx, :]
 
             # Multiply by fwd model to get EEG scalp activity and add observation noise
-            y = G @ x + rng.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
+            y = G @ x + np.random.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
 
             # Dynamic source localization
             components = Osc(a=0.95, freq=f, Fs=Fs)
