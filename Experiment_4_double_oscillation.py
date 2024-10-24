@@ -17,7 +17,7 @@ from somata.source_loc import SourceLocModel as Src
 from somata.source_loc.source_loc_utils import get_atlas_source_indices
 
 # Set the random seed
-np.random.seed(1015)
+np.random.seed(1023)
 
 # %% Figure out which sources to activate
 
@@ -36,7 +36,7 @@ src = fwd['src']
 atlas_info = get_atlas_source_indices(labels, src)
 vert_to_source, source_to_vert = Src._vertex_source_mapping(src)
 patch_order = 3
-scaling = (0.5, 0.25, 0.1)
+scaling = (1, 1, 1)  # 0.5, 0.25, 0.125
 neighbors = Src._define_neighbors(src, order=patch_order)
 
 # Pick one large ROI in the left medial frontal cortex
@@ -44,7 +44,7 @@ active_idx = atlas_info['rostralmiddlefrontal-lh']
 hemi = 0
 
 # Pick some sources from the ROI
-num_src_loop = 20
+num_src_loop = 10
 center_seeds = np.random.choice(active_idx, num_src_loop, replace=False)
 
 # (Optional) Visualize the selected sources
@@ -101,9 +101,11 @@ rms_amplitude = np.sqrt(np.mean(simulated_src ** 2))
 slow_true = src_scale / rms_amplitude * slow_activity
 alpha_true = src_scale / rms_amplitude * alpha_activity
 
-# plt.plot(np.squeeze(slow_true + alpha_true))
-# plt.plot(slow_true.T)
-# plt.plot(alpha_true.T)
+if __name__ != '__main__':
+    import matplotlib.pyplot as plt
+    plt.plot(np.squeeze(slow_true + alpha_true))
+    plt.plot(slow_true.T)
+    plt.plot(alpha_true.T)
 
 # Simulate the same observation noise that will be re-used across ROIs
 observation_noise = np.random.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
@@ -132,7 +134,7 @@ with Timer():
     y = G @ x + observation_noise
 
     # Dynamic source localization
-    components = [Osc(a=0.98, freq=1, Fs=Fs), Osc(a=0.98, freq=10, Fs=Fs)]
+    components = [Osc(a=0.98, freq=1, Fs=Fs), Osc(a=0.96, freq=10, Fs=Fs)]
     src1 = Src(components=components, fwd=fwd, d1=0.5, d2=0.25, m1=0.5, m2=0.5)
     x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, update_param='Q')
     all_x_t_n_Osc.append(x_t_n)
@@ -197,21 +199,21 @@ if __name__ != '__main__':
                      clim=dict(kind='value', lims=[0, 0.04, 0.15]),
                      views='lateral', initial_time=100,  smoothing_steps=10)
 
-    # import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt
 
-    # plt.plot(slow_x_t_n[0:-1:2, :][vidx, :])
-    # plt.plot(alpha_x_t_n[0:-1:2, :][vidx, :])
+    plt.plot(slow_x_t_n[0:-1:2, :][vidx, :])
+    plt.plot(alpha_x_t_n[0:-1:2, :][vidx, :])
 
-    # plt.plot(slow_x_t_n[0:-1:2, :][np.argmax(np.sqrt(np.mean(slow_x_t_n ** 2, axis=1))[0:-1:2]), :])
-    # plt.plot(alpha_x_t_n[0:-1:2, :][np.argmax(np.sqrt(np.mean(alpha_x_t_n ** 2, axis=1))[0:-1:2]), :])
+    plt.plot(slow_x_t_n[0:-1:2, :][np.argmax(np.sqrt(np.mean(slow_x_t_n ** 2, axis=1))[0:-1:2]), :])
+    plt.plot(alpha_x_t_n[0:-1:2, :][np.argmax(np.sqrt(np.mean(alpha_x_t_n ** 2, axis=1))[0:-1:2]), :])
 
-    # # Inspect the true source activity in comparison to the localized source activity
-    # plt.plot(np.squeeze(slow_true_save + alpha_true_save))
-    # plt.plot(slow_true_save.T)
-    # plt.plot(alpha_true_save.T)
+    # Inspect the true source activity in comparison to the localized source activity
+    plt.plot(np.squeeze(slow_true_save + alpha_true_save))
+    plt.plot(slow_true_save.T)
+    plt.plot(alpha_true_save.T)
 
-    # plt.plot(slow_true_save.T)
-    # plt.plot(slow_x_t_n[0:-1:2, :][np.argmax(np.sqrt(np.mean(slow_x_t_n ** 2, axis=1))[0:-1:2]), :])
+    plt.plot(slow_true_save.T)
+    plt.plot(slow_x_t_n[0:-1:2, :][np.argmax(np.sqrt(np.mean(slow_x_t_n ** 2, axis=1))[0:-1:2]), :])
 
-    # plt.plot(alpha_true_save.T)
-    # plt.plot(alpha_x_t_n[0:-1:2, :][np.argmax(np.sqrt(np.mean(alpha_x_t_n ** 2, axis=1))[0:-1:2]), :])
+    plt.plot(alpha_true_save.T)
+    plt.plot(alpha_x_t_n[0:-1:2, :][np.argmax(np.sqrt(np.mean(alpha_x_t_n ** 2, axis=1))[0:-1:2]), :])
