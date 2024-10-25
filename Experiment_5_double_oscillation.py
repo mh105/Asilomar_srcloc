@@ -111,43 +111,39 @@ if __name__ != '__main__':
 observation_noise = np.random.multivariate_normal(np.zeros(neeg), R * np.eye(neeg, neeg), ntime).T
 
 # %% Simulate activity in each patch of sources and localize with two oscillators
-# for ii, vidx in enumerate(center_seeds):
+for ii, vidx in enumerate(center_seeds):
+    with Timer():
+        print(f'Processing the {ii}th source: {vidx}...')
 
-ii = 0
-vidx = center_seeds[ii]
+        # Place simulated slow across the entire atlas ROI
+        x = np.copy(x_blank)
+        x[active_idx, :] += np.squeeze(slow_true)
 
-with Timer():
-    print(f'Processing the {ii}th source: {vidx}...')
+        # Place simulated alpha in the correct row of x that corresponds to the center source
+        x[vidx, :] += np.squeeze(alpha_true)
 
-    # Place simulated slow across the entire atlas ROI
-    x = np.copy(x_blank)
-    x[active_idx, :] += np.squeeze(slow_true)
+        # Activate the neighboring sources around the center source
+        vert = source_to_vert[hemi][vidx]  # vertex indexing
+        for order, neighbor_scale in zip(list(range(1, patch_order + 1)), scaling):
+            vert_neighbor = np.asarray([vert_to_source[hemi].get(x, float('nan'))
+                                        for x in neighbors[hemi][vert][order]])
+            # Filter out neighbor vertices that are not sources
+            valid_idx = np.invert(np.isnan(vert_neighbor))
+            vert_neighbor = vert_neighbor[valid_idx].astype(dtype=int)
 
-    # Place simulated alpha in the correct row of x that corresponds to the center source
-    x[vidx, :] += np.squeeze(alpha_true)
+            # Add the same alpha activity to the neighbor sources
+            x[vert_neighbor, :] += neighbor_scale * np.squeeze(alpha_true)
 
-    # Activate the neighboring sources around the center source
-    vert = source_to_vert[hemi][vidx]  # vertex indexing
-    for order, neighbor_scale in zip(list(range(1, patch_order + 1)), scaling):
-        vert_neighbor = np.asarray([vert_to_source[hemi].get(x, float('nan'))
-                                    for x in neighbors[hemi][vert][order]])
-        # Filter out neighbor vertices that are not sources
-        valid_idx = np.invert(np.isnan(vert_neighbor))
-        vert_neighbor = vert_neighbor[valid_idx].astype(dtype=int)
+        # Multiply by fwd model to get EEG scalp activity and add observation noise
+        y = G @ x + observation_noise
 
-        # Add the same alpha activity to the neighbor sources
-        x[vert_neighbor, :] += neighbor_scale * np.squeeze(alpha_true)
-
-    # Multiply by fwd model to get EEG scalp activity and add observation noise
-    y = G @ x + observation_noise
-
-    # Dynamic source localization
-    components = [Osc(a=0.98, freq=1, Fs=Fs), Osc(a=0.95, freq=10, Fs=Fs)]
-    src1 = Src(components=components, fwd=fwd, d1=0.5, d2=0.25, m1=0.5, m2=0.5)
-    x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, update_param='Q')
-    all_x_t_n_Osc.append(x_t_n)
-    all_P_t_n_Osc.append(P_t_n)
-    em_iters_Osc[ii] = src1.em_log['em_iter']
+        # Dynamic source localization
+        components = [Osc(a=0.98, freq=1, Fs=Fs), Osc(a=0.95, freq=10, Fs=Fs)]
+        src1 = Src(components=components, fwd=fwd, d1=0.5, d2=0.25, m1=0.5, m2=0.5)
+        x_t_n, P_t_n = src1.learn(y=y, R=R, SNR=SNR_amplitude, max_iter=max_iter, update_param='Q')
+        all_x_t_n_Osc.append(x_t_n)
+        all_P_t_n_Osc.append(P_t_n)
+        em_iters_Osc[ii] = src1.em_log['em_iter']
 
 # Save the results
 with open('results/Experiment_5_Osc_results.pickle', 'wb') as openfile:
