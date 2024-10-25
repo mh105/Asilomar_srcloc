@@ -64,7 +64,7 @@ with open('results/Experiment_4_Osc_results.pickle', 'rb') as openfile:
         slow_true_save, alpha_true_save, center_seeds_save = pickle.load(openfile)
 
 # %% Manually visualize the localization results for one patch at a time
-ii = 3
+ii = 9
 vidx = center_seeds_save[ii]
 
 # Extract the estimated hidden states and separate by slow and alpha oscillations
@@ -123,11 +123,11 @@ plt.plot(np.squeeze(slow_true_save + alpha_true_save))
 plt.plot(slow_true_save.T)
 plt.plot(alpha_true_save.T)
 
-plt.plot(slow_true_save.T)
 plt.plot(slow_x_t_n[0:-1:2, :][vidx, :])
+plt.plot(slow_true_save.T)
 
-plt.plot(alpha_true_save.T)
 plt.plot(alpha_x_t_n[0:-1:2, :][vidx, :])
+plt.plot(alpha_true_save.T)
 
 # Sources with the highest RMS
 plt.plot(slow_true_save.T)
