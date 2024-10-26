@@ -65,7 +65,7 @@ with open('results/Experiment_5_Osc_results.pickle', 'rb') as openfile:
         slow_true_save, alpha_true_save, center_seeds_save = pickle.load(openfile)
 
 # %% Manually visualize the localization results for one patch at a time
-ii = 0
+ii = 5
 vidx = center_seeds_save[ii]
 
 # Extract the estimated hidden states and separate by slow and alpha oscillations
@@ -75,6 +75,17 @@ alpha_x_t_n = x_t_n[G.shape[1] * 2:, :]
 
 # Visualize the localized source activity for slow
 data = np.sqrt(np.mean(slow_x_t_n ** 2, axis=1))[0:-1:2]
+stc = mne.SourceEstimate(data=data, vertices=[src[0]['vertno'], src[1]['vertno']],
+                         tmin=0, tstep=1, subject='fs_FS6')
+brain = stc.plot(hemi='both',
+                 title='Testing',
+                 subjects_dir='data/JCHU_F_92_young/mri/simnibs_pipe/mri2mesh',
+                 clim=dict(kind='value', lims=[0, 0.04, 0.15]),
+                 views='lateral', initial_time=100,  smoothing_steps=10)
+
+# Visualize the true activated patch of sources for slow
+data = np.zeros((G.shape[1], 1000))
+data[active_idx, :] = 1
 stc = mne.SourceEstimate(data=data, vertices=[src[0]['vertno'], src[1]['vertno']],
                          tmin=0, tstep=1, subject='fs_FS6')
 brain = stc.plot(hemi='both',
@@ -93,7 +104,7 @@ brain = stc.plot(hemi='both',
                  clim=dict(kind='value', lims=[0, 0.04, 0.15]),
                  views='lateral', initial_time=100,  smoothing_steps=10)
 
-# Visualize the true activated patch of sources
+# Visualize the true activated patch of sources for alpha
 data = np.zeros((G.shape[1], 1000))
 data[vidx, :] = 1
 # Activate the neighboring sources around the center source
@@ -162,7 +173,7 @@ for ii in range(len(all_x_t_n_Osc)):
     assert len(active_idx_patch) == len(np.unique(active_idx_patch)), 'Duplicated source indices in the patch'
 
     squared_x_slow = np.sum(slow_x_t_n ** 2, axis=1)[0:-1:2]
-    e_ratios_slow[ii] = squared_x_slow[active_idx_patch].sum() / squared_x_slow.sum()
+    e_ratios_slow[ii] = squared_x_slow[active_idx].sum() / squared_x_slow.sum()
 
     squared_x_alpha = np.sum(alpha_x_t_n ** 2, axis=1)[0:-1:2]
     e_ratios_alpha[ii] = squared_x_alpha[active_idx_patch].sum() / squared_x_alpha.sum()
