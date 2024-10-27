@@ -15,7 +15,7 @@ def plot_resmat_metrics(res_mat, src, legend_str):
 
     fig, ax = plt.subplots(1, 2, figsize=(18, 8))
     ax[0].hist(SD, bins=bins, alpha=0.5, density=True, edgecolor='black', label=legend_str)
-    ax[0].legend(prop={'size': 10})
+    ax[0].legend(prop={'size': 20})
     ax[0].yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
     ax[0].set_xlabel('SD (cm)', fontsize=font_size)
     ax[0].set_ylabel('pmf', fontsize=font_size)
@@ -23,11 +23,13 @@ def plot_resmat_metrics(res_mat, src, legend_str):
     ax[0].set_title('Spatial Dispersion (SD)', fontsize=font_size)
 
     ax[1].hist(DLE, bins=bins, alpha=0.5, density=True, edgecolor='black',  label=legend_str)
-    ax[1].legend(prop={'size': 10})
+    ax[1].legend(prop={'size': 20})
     ax[1].yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
     ax[1].set_xlabel('DLE (cm)', fontsize=font_size)
     ax[1].set_ylabel('pmf', fontsize=font_size)
     ax[1].tick_params(axis='both', labelsize=font_size)
     ax[1].set_title('Dipole Localization Error (DLE)', fontsize=font_size)
+
+    fig.set_tight_layout(True)
 
     return fig, ax

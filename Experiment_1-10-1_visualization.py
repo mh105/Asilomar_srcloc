@@ -68,7 +68,7 @@ res_mat_MNE = np.abs(M @ G)
 # plt.imshow(res_mat_MNE, cmap='hot', vmin=0, vmax=0.01, interpolation='none')
 # plt.xlabel('# Source Vertex', fontsize=16)
 # plt.ylabel('# Source Vertex', fontsize=16)
-# plt.title('MNE ResMat', fontsize=20)
+# plt.title('MNE Resolution Matrix', fontsize=20)
 # plt.colorbar()
 # plt.show()
 
