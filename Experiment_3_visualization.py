@@ -71,19 +71,19 @@ for (ROI_name, active_idx), ii in zip(atlas_info.items(), range(len(atlas_info))
     # Osc
     roc_hit = np.zeros(len(percentiles))
     roc_fa = np.zeros(len(percentiles))
-    for ii in range(len(percentiles)):
-        threshold = np.percentile(Osc_activity, percentiles[ii])
-        roc_hit[ii] = np.mean(Osc_activity[active_idx] > threshold)
-        roc_fa[ii] = np.mean(Osc_activity[inactive_idx] > threshold)
+    for p in range(len(percentiles)):
+        threshold = np.percentile(Osc_activity, percentiles[p])
+        roc_hit[p] = np.mean(Osc_activity[active_idx] > threshold)
+        roc_fa[p] = np.mean(Osc_activity[inactive_idx] > threshold)
     roc_hit_Osc[ii, :] = roc_hit
     roc_fa_Osc[ii, :] = roc_fa
     # Ar1
     roc_hit = np.zeros(len(percentiles))
     roc_fa = np.zeros(len(percentiles))
-    for ii in range(len(percentiles)):
-        threshold = np.percentile(Ar1_activity, percentiles[ii])
-        roc_hit[ii] = np.mean(Ar1_activity[active_idx] > threshold)
-        roc_fa[ii] = np.mean(Ar1_activity[inactive_idx] > threshold)
+    for p in range(len(percentiles)):
+        threshold = np.percentile(Ar1_activity, percentiles[p])
+        roc_hit[p] = np.mean(Ar1_activity[active_idx] > threshold)
+        roc_fa[p] = np.mean(Ar1_activity[inactive_idx] > threshold)
     roc_hit_Ar1[ii, :] = roc_hit
     roc_fa_Ar1[ii, :] = roc_fa
 
