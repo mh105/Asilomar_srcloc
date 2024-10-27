@@ -49,13 +49,13 @@ for vidx in range(nsources):
     x_t_n = all_x_t_n_Ar1[vidx]
     res_mat_Ar1[:, vidx] = np.sqrt(np.mean(x_t_n ** 2, axis=1))
 
-# plt.figure()
-# plt.imshow(res_mat_Ar1, cmap='hot', vmin=0, vmax=0.01, interpolation='none')
-# plt.xlabel('# Source Vertex', fontsize=16)
-# plt.ylabel('# Source Vertex', fontsize=16)
-# plt.title('Ar1 ResMat', fontsize=20)
-# plt.colorbar()
-# plt.show()
+plt.figure()
+plt.imshow(res_mat_Ar1, cmap='hot', vmin=0, vmax=0.01, interpolation='none')
+plt.xlabel('# Source Vertex', fontsize=16)
+plt.ylabel('# Source Vertex', fontsize=16)
+plt.title('Ar1 Resolution matrix', fontsize=20)
+plt.colorbar()
+plt.show()
 
 # %% Compute the MNE resolution matrix
 MNE_R = R * np.eye(G.shape[0], dtype=np.float64)

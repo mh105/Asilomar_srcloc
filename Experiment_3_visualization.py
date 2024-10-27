@@ -92,59 +92,14 @@ with open('results/Experiment_3_visualization_results.pickle', 'wb') as openfile
     pickle.dump((ROI_names, rms_Osc, rms_Ar1, e_ratios_Osc, e_ratios_Ar1, percentiles,
                  roc_hit_Osc, roc_fa_Osc, roc_hit_Ar1, roc_fa_Ar1), openfile)
 
-# %% Plot the ROC curves
-# fig, ax = plt.subplots(1,1)
-# ax.plot(roc_fa_Osc.mean(axis=0), roc_hit_Osc.mean(axis=0))
-# hit_std = np.std(roc_hit_Osc, axis=0)
-# ax.fill_between(roc_fa_Osc.mean(axis=0),
-#                 roc_hit_Osc.mean(axis=0)-hit_std,
-#                 np.clip(roc_hit_Osc.mean(axis=0)+hit_std, None, 1.0),
-#                 alpha=0.1)
-# ax.plot(roc_fa_Ar1.mean(axis=0), roc_hit_Ar1.mean(axis=0))
-# hit_std = np.std(roc_hit_Ar1, axis=0)
-# ax.fill_between(roc_fa_Ar1.mean(axis=0),
-#                 roc_hit_Ar1.mean(axis=0)-hit_std,
-#                 np.clip(roc_hit_Ar1.mean(axis=0)+hit_std, None, 1.0),
-#                 alpha=0.1)
-# fig.show()
-
 # %% Inspect the ROIs where the localized energy ratio is very low
-# low_e_ratio_data = {}
-# low_e_ratio_idx = np.where(e_ratios_Osc < 0.1)[0]
+low_e_ratio_data = {}
+low_e_ratio_idx = np.where(e_ratios_Osc < 0.1)[0]
 
-# for idx in low_e_ratio_idx:
-#     ROI_name = ROI_names[idx]
-#     x_t_n = all_x_t_n_Osc[idx]
-#     low_e_ratio_data[ROI_name] = np.sqrt(np.mean(x_t_n ** 2, axis=1))[0:-1:2]
+for idx in low_e_ratio_idx:
+    ROI_name = ROI_names[idx]
+    x_t_n = all_x_t_n_Osc[idx]
+    low_e_ratio_data[ROI_name] = np.sqrt(np.mean(x_t_n ** 2, axis=1))[0:-1:2]
 
-# with open('results/Experiment_3_low_e_ratio_data.pickle', 'wb') as openfile:
-#     pickle.dump(low_e_ratio_data, openfile)
-
-# if __name__ != '__main__':
-#     with open('results/Experiment_3_low_e_ratio_data.pickle', 'rb') as openfile:
-#         low_e_ratio_data = pickle.load(openfile)
-
-#     low_e_ratio_ROIs = list(low_e_ratio_data.keys())
-
-#     idx = 8
-
-#     print(low_e_ratio_ROIs[idx])
-#     active_idx = atlas_info[low_e_ratio_ROIs[idx]]
-#     data = np.zeros((G.shape[1], 1000))
-#     data[active_idx, :] = 1
-#     stc = mne.SourceEstimate(data=data, vertices=[src[0]['vertno'], src[1]['vertno']],
-#                              tmin=0, tstep=1, subject='fs_FS6')
-#     brain = stc.plot(hemi='both',
-#                      title='Testing',
-#                      subjects_dir='data/JCHU_F_92_young/mri/simnibs_pipe/mri2mesh',
-#                      clim=dict(kind='value', lims=[0, 0.04, 0.15]),
-#                      views='lateral', initial_time=100,  smoothing_steps=10)
-
-#     data = low_e_ratio_data[low_e_ratio_ROIs[idx]]
-#     stc = mne.SourceEstimate(data=data, vertices=[src[0]['vertno'], src[1]['vertno']],
-#                              tmin=0, tstep=1, subject='fs_FS6')
-#     brain = stc.plot(hemi='both',
-#                      title='Testing',
-#                      subjects_dir='data/JCHU_F_92_young/mri/simnibs_pipe/mri2mesh',
-#                      clim=dict(kind='value', lims=[0, 0.04, 0.15]),
-#                      views='lateral', initial_time=100,  smoothing_steps=10)
+with open('results/Experiment_3_low_e_ratio_data.pickle', 'wb') as openfile:
+    pickle.dump(low_e_ratio_data, openfile)

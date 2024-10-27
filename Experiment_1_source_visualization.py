@@ -1,9 +1,5 @@
 """
-Simulation studies Experiment 2:
-
-        Activate a region on the cortex and compare the recovered result
-
-- Activate a patch of sources within an ROI from atlas
+To help with visualization of active sources across Experiment 1
 """
 
 import mne
@@ -35,6 +31,11 @@ raw = mne.io.read_raw_fif('data/JCHU_F_92_young/fif/JCHU_F_92_night2_Resting_ds5
 trans = mne.read_trans('data/JCHU_F_92_young/fif/JCHU_F_92_night2-trans.fif')
 src = fwd['src']
 
+if __name__ != '__main__':
+    fig = src.plot(trans=trans, subjects_dir=subjects_dir)
+    fig.plotter.set_background(color='white')
+    fig.plotter.show()
+
 # # Visualize the sensors and brain surfaces
 # mne.viz.plot_alignment(raw.info, trans=trans, eeg='original', subject=subject,
 #                        subjects_dir=subjects_dir, dig=True,
@@ -48,31 +49,30 @@ src = fwd['src']
 # Get the indices of the source space corresponding to atlas ROIs
 atlas_info = get_atlas_source_indices(labels, src)
 vert_to_source, source_to_vert = Src._vertex_source_mapping(src)
-patch_order = 3
-scaling = (0.6, 0.3, 0.1)
+patch_order = 2
+scaling = (0.5, 0.25)
 neighbors = Src._define_neighbors(src, order=patch_order)
 
 # Pick one ROI
-active_idx = atlas_info['S_front_middle-lh']  # ['rostralmiddlefrontal-lh']
+active_idx = atlas_info['S_front_middle-lh']
 
 # Pick one of the sources in the ROI
-# center_seed = np.random.choice(active_idx)
-center_seed = active_idx
+center_seed = np.random.choice(active_idx)
 
 data = np.zeros((G.shape[1], 1000))
 data[center_seed, :] = 1
 
-# hemi = 0
-# vert = source_to_vert[hemi][center_seed]  # vertex indexing
-# for order, neighbor_scale in zip(list(range(1, patch_order + 1)), scaling):
-#     vert_neighbor = np.asarray([vert_to_source[hemi].get(x, float('nan'))
-#                                 for x in neighbors[hemi][vert][order]])
-#     # Filter out neighbor vertices that are not sources
-#     valid_idx = np.invert(np.isnan(vert_neighbor))
-#     vert_neighbor = vert_neighbor[valid_idx].astype(dtype=int)
+hemi = 0
+vert = source_to_vert[hemi][center_seed]  # vertex indexing
+for order, neighbor_scale in zip(list(range(1, patch_order + 1)), scaling):
+    vert_neighbor = np.asarray([vert_to_source[hemi].get(x, float('nan'))
+                                for x in neighbors[hemi][vert][order]])
+    # Filter out neighbor vertices that are not sources
+    valid_idx = np.invert(np.isnan(vert_neighbor))
+    vert_neighbor = vert_neighbor[valid_idx].astype(dtype=int)
 
-#     # Add the same activity to the neighbor sources
-#     data[vert_neighbor, :] += neighbor_scale * data[center_seed, :]
+    # Add the same activity to the neighbor sources
+    data[vert_neighbor, :] += neighbor_scale * data[center_seed, :]
 
 # brain_kwargs = dict(alpha=1, background="white", cortex="low_contrast")
 # brain = mne.viz.Brain(subject, subjects_dir=subjects_dir, **brain_kwargs)
@@ -177,8 +177,6 @@ if __name__ != '__main__':
                      subjects_dir='data/JCHU_F_92_young/mri/simnibs_pipe/mri2mesh',
                      clim=dict(kind='value', lims=[0, 0.04, 0.15]),
                      views='lateral', initial_time=100,  smoothing_steps=10)
-    brain.plotter.set_background(color='white')
-    brain.plotter.show()
 
     x_t_n = all_x_t_n_Ar1[0]
     data = np.sqrt(np.mean(x_t_n ** 2, axis=1))
@@ -191,5 +189,3 @@ if __name__ != '__main__':
                      subjects_dir='data/JCHU_F_92_young/mri/simnibs_pipe/mri2mesh',
                      clim=dict(kind='value', lims=[0, 0.04, 0.15]),
                      views='lateral', initial_time=100,  smoothing_steps=10)
-    brain.plotter.set_background(color='white')
-    brain.plotter.show()
